@@ -24,9 +24,9 @@
     <script>
         //第一步⭕走中间，第二步❌十字的位置，则⭕能赢，如果走斜角的位置一定会和
         let pattern=[
-            [0,2,0],
-            [0,1,0],
-            [0,0,0]
+            0,0,0,
+            0,0,0,
+            0,0,0
         ]
         let color=1;
         function show(){
@@ -36,8 +36,8 @@
                 for(let j=0;j<3;j++){
                     let cell=document.createElement("div");
                     cell.classList.add("cell");
-                    cell.innerText=pattern[i][j]==2?"❌":
-                    cell.innerText=pattern[i][j]==1?"⭕":"";
+                    cell.innerText=pattern[i*3+j]==2?"❌":
+                    cell.innerText=pattern[i*3+j]==1?"⭕":"";
                     cell.addEventListener("click",()=>move(j,i))
                     board.appendChild(cell)
                 }
@@ -45,21 +45,19 @@
             }
         }
         function move(x,y){
-            pattern[y][x]=color;
+            pattern[y*3+x]=color;
             if(check(pattern,color)){
                 alert(color==2?"❌ is winner":"⭕ is winner")
             }
             color=3-color;
             show()
-            if(willWin(pattern,color)){
-                console.log(color==2?"❌ will win":"⭕ will win")
-            }
+            console.log(bestChoice(pattern,color))
         }
         function check(pattern,color){
             for(let i=0;i<3;i++){
                 let win=true
                 for(let j=0;j<3;j++){
-                    if(pattern[i][j]!==color){
+                    if(pattern[i*3+j]!==color){
                         win=false
                     }
                 }
@@ -69,7 +67,7 @@
             for(let j=0;j<3;j++){
                 let win=true
                 for(i=0;i<3;i++){
-                    if(pattern[i][j]!==color){
+                    if(pattern[i*3+j]!==color){
                         win=false
                     }
                 }
@@ -79,7 +77,7 @@
             {
                 let win=true
                 for(let j=0;j<3;j++){
-                    if(pattern[j][j]!==color){
+                    if(pattern[i*3+j]!==color){
                         win=false
                     }
                 }
@@ -89,7 +87,7 @@
             {
                 let win=true
                 for(let j=0;j<3;j++){
-                    if(pattern[j][2-j]!==color){
+                    if(pattern[3*j+2-j]!==color){
                         win=false
                     }
                 }
@@ -98,16 +96,20 @@
             }
             return false
         }
+        //利用javascript的原型机制克隆数组
+        //只是创建了一个新对象，克隆的pattern不但继承了原来pattern的方法，也继承了数据
+        //新pattern的生命周期短于老pattern的
+        //节省内存空间
         function clone(pattern){
-            return JSON.parse(JSON.stringify(pattern));
+            return Object.create(pattern);
         }
         function willWin(pattern,color){
             for(let i=0;i<3;i++){
                 for(let j=0;j<3;j++){
-                    if(pattern[i][j])
+                    if(pattern[i*3+j])
                         continue;
                     let tmp=clone(pattern)
-                    tmp[i][j]=color;
+                    tmp[i*3+j]=color;
                     if(check(tmp,color)){
                         return [j,i]
                     }
@@ -131,17 +133,20 @@
             }
             let result=-2;//不会作为最后的值被返回
             let point=null;
-            for(let i=0;i<3;i++){
+            outter:for(let i=0;i<3;i++){
                 for(let j=0;j<3;j++){
-                    if(pattern[i][j])//如果该位置有棋子，则跳过，直到该位置没有棋子
+                    if(pattern[i*3+j])//如果该位置有棋子，则跳过，直到该位置没有棋子
                         continue;
                         let tmp=clone(pattern);
-                        tmp[i][j]=color;
+                        tmp[i*3+j]=color;
                         let r=bestChoice(tmp,3-color).result;//看对方最好的策略，如果对方最好的策略比较差，则我们就更倾向于走这个位置
                         if(-r>result){//找对方最差的策略
                             result=-r;
                             point=[j,i];
                         }
+                        //win-lost剪枝逻辑
+                        if(result==1)
+                            break outter
                 }
             }
             return {
@@ -150,7 +155,6 @@
             }
         }
         show(pattern);
-        console.log(bestChoice(pattern,color))
     </script>
 </body>
 </html>
