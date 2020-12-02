@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实现一个TicTacToe游戏</title>
+</head>
+<body>
+    <style>
+        .cell{
+            width: 100px;
+            height: 100px;
+            background-color: green;
+            display: inline-block;
+            border: solid 1px white;
+            vertical-align: middle;
+
+            line-height: 100px;
+            font-size: 50px;
+            text-align: center;
+        }
+    </style>
+    <div id="board"></div>
+    <script>
+        //第一步⭕走中间，第二步❌十字的位置，则❌一定会输，如果走斜角的位置一定会和
+        let pattern=[
+            [0,0,2],
+            [0,1,0],
+            [0,0,0]
+        ]
+        let color=1;
+        function show(){
+            let board=document.getElementById("board");
+            board.innerText="";
+            for(let i=0;i<3;i++){
+                for(let j=0;j<3;j++){
+                    let cell=document.createElement("div");
+                    cell.classList.add("cell");
+                    cell.innerText=pattern[i][j]==2?"❌":
+                    cell.innerText=pattern[i][j]==1?"⭕":"";
+                    cell.addEventListener("click",()=>move(j,i))
+                    board.appendChild(cell)
+                }
+                board.appendChild(document.createElement("br"))
+            }
+        }
+        function move(x,y){
+            pattern[y][x]=color;
+            if(check(pattern,color)){
+                alert(color==2?"❌ is winner":"⭕ is winner")
+            }
+            color=3-color;
+            show()
+            if(willWin(pattern,color)){
+                console.log(color==2?"❌ will win":"⭕ will win")
+            }
+        }
+        function check(pattern,color){
+            for(let i=0;i<3;i++){
+                let win=true
+                for(let j=0;j<3;j++){
+                    if(pattern[i][j]!==color){
+                        win=false
+                    }
+                }
+                if(win)
+                    return true
+            }
+            for(let j=0;j<3;j++){
+                let win=true
+                for(i=0;i<3;i++){
+                    if(pattern[i][j]!==color){
+                        win=false
+                    }
+                }
+                if(win)
+                    return true
+            }
+            {
+                let win=true
+                for(let j=0;j<3;j++){
+                    if(pattern[j][j]!==color){
+                        win=false
+                    }
+                }
+                if(win)
+                    return true
+            }
+            {
+                let win=true
+                for(let j=0;j<3;j++){
+                    if(pattern[j][2-j]!==color){
+                        win=false
+                    }
+                }
+                if(win)
+                    return true
+            }
+            return false
+        }
+        function clone(pattern){
+            return JSON.parse(JSON.stringify(pattern));
+        }
+        function willWin(pattern,color){
+            for(let i=0;i<3;i++){
+                for(let j=0;j<3;j++){
+                    if(pattern[i][j])
+                        continue;
+                    let tmp=clone(pattern)
+                    tmp[i][j]=color;
+                    if(check(tmp,color)){
+                        return [j,i]
+                    }
+                }
+            }
+            return null;
+        }
+        // 策略
+        // 第一层策略：我要赢
+        // 第二层策略：别输
+        // 第三层策略：...(不管对方怎么走,我们都不会输)
+        // 对方最好的策略就是我们最糟糕的策略
+        // -1（输） 0（和） 1（赢）
+        function bestChoice(pattern,color){
+            let p;
+            if(p=willWin(pattern,color)){
+                return {
+                    point:p,
+                    result:1
+                }
+            }
+            let result=-2;//不会作为最后的值被返回
+            let point=null;
+            for(let i=0;i<3;i++){
+                for(let j=0;j<3;j++){
+                    if(pattern[i][j]){//如果该位置有棋子，则跳过，直到该位置没有棋子
+                        continue;
+                        let tmp=clone(pattern);
+                        tmp[i][j]=color;
+                        let r=bestChoice(tmp,3-color).result;//看对方最好的策略，如果对方最好的策略比较差，则我们就更倾向于走这个位置
+                        if(-r>result){//找对方最差的策略
+                            result=-r;
+                            point=[j,i];
+                        }
+                    }
+                }
+            }
+            return {
+                point:point,
+                result:point ? result:0
+            }
+        }
+        show(pattern);
+        console.log(bestChoice(pattern,color))
+    </script>
+</body>
+</html>
