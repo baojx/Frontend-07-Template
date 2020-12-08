@@ -8,16 +8,18 @@
 <body>
     <style>
         .cell{
-            display: inline-block;
+            /* display: inline-block; */
             height: 6px;
-            line-height: 7x;
+            /* line-height: 7x; */
             width: 6px;
             background-color: gray;
             border-bottom: 1px solid white ;
             border-right: 1px solid white;
-            vertical-align: middle;
+            vertical-align: top;
         }
         #containter{
+            display: flex;
+            flex-wrap: wrap;
             width: 701px;
         }
     </style>
@@ -31,7 +33,7 @@
                 let cell=document.createElement("div");
                 cell.classList.add("cell");
                 if(map[100*y+x]==1)//有墙
-                    cell.style.backgroundColor="black"
+                    cell.style.backgroundColor="black";
                 cell.addEventListener("mousemove",()=>{
                     if(mousedown){
                         if(clear){
@@ -47,14 +49,14 @@
                 containter.appendChild(cell);
             }
         }
-        let mousedown=false
+        let mousedown=false;
         let clear=false;
         document.addEventListener("mousedown",e=>{//按下鼠标
-            mousedown=true
-            clear=(e.which==3)//右键
-        })
-        document.addEventListener("mouseup",()=>mousedown=false)//松开鼠标
-        document.addEventListener("contextmenu",e=>e.preventDefault)//阻止鼠标右键出现菜单
+            mousedown=true;
+            clear=(e.which===3);//右键
+        });
+        document.addEventListener("mouseup",()=>mousedown=false);//松开鼠标
+        document.addEventListener("contextmenu",e=>e.preventDefault());//阻止鼠标右键出现菜单
     </script>
 </body>
 </html>
