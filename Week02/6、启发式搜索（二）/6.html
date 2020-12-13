@@ -34,6 +34,9 @@
                 cell.classList.add("cell");
                 if(map[100*y+x]==1)//有墙
                     cell.style.backgroundColor="black";
+                if(x===50&&y===50){//测试
+                    cell.style.backgroundColor="red";
+                }
                 cell.addEventListener("mousemove",()=>{
                     if(mousedown){
                         if(clear){
@@ -62,28 +65,31 @@
                 setTimeout(resolve,t);
             })
         }
-        class Sorted{
+        class Sorted{//能保证每次take时拿到最小的
             constructor(data,compare){
                 this.data=data.slice();//完成对数组data的浅拷贝
                 this.compare=compare||((a,b)=>a-b)
             }
             take(){
                 if(!this.data.length)
-                    return
-                let min=this.data[0]
-                let minIndex=0
-                for(let i=0;i<this.data.length;i++){
+                    return;
+                let min=this.data[0];
+                let minIndex=0;
+                for(let i=1;i<this.data.length;i++){
                     if(this.compare(this.data[i],min)<0){
                         min=this.data[i]
                         minIndex=i
                     }
                 }
                 this.data[minIndex]=this.data[this.data.length-1];
-                this.data.pop()
+                this.data.pop()//删除最后一个元素
                 return min
             }
             give(v){
                 this.data.push(v)
+            }
+            get length(){
+                return this.data.length
             }
         }
         //寻路：在地图上指定一个起点和终点，然后找到一条路径从起点到终点
@@ -94,7 +100,7 @@
             //数组+pop+unshift=>队列
             //数组+push/shift+pop/unshift=>栈
             //[0,0] [5,5]
-            let queue=[start]//[[0,0]]
+            let queue=new Sorted([start],(a,b)=>distance(a)-distance(b))
             async function insert(x,y,pre){
                 if(x<0||x>=100||y<0||y>=100)
                     return;
@@ -102,10 +108,13 @@
                     return;
                 containter.children[y*100+x].style.backgroundColor="red";
                 table[y*100+x]=pre;//将前一个节点写入table
-                queue.push([x,y]);//将每个点下一步能走的点都加入到queue
+                queue.give([x,y]);//将每个点下一步能走的点都加入到queue
             }
-            while(queue.length){
-                let [x,y]=queue.shift();//用于把数组的第一个元素从其中删除，并返回第一个元素的值
+            function distance(point){
+                return (point[0]-end[0])**2+(point[1]-end[1])**2;
+            }
+            while(queue.length){//queue.length
+                let [x,y]=queue.take();//用于把数组的第一个元素从其中删除，并返回第一个元素的值
                 // console.log(x,y)
                 if(x===end[0]&&y===end[1]){//判断是否走到终点
                    let path=[];

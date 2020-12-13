@@ -76,7 +76,12 @@
                     return;
                 if(table[y*100+x])
                     return;
-                containter.children[y*100+x].style.backgroundColor="red";
+                if(x===end[0]&&y===end[1]){//判断是否走到终点
+                    containter.children[y*100+x].style.backgroundColor="purple";
+                }else{
+                    containter.children[y*100+x].style.backgroundColor="red";
+                }
+                // containter.children[y*100+x].style.backgroundColor="red";
                 table[y*100+x]=pre;//将前一个节点写入table
                 queue.push([x,y]);//将每个点下一步能走的点都加入到queue
             }

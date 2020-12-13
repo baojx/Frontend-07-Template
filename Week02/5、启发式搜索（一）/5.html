@@ -23,7 +23,6 @@
             width: 701px;
         }
     </style>
-    <!-- 为了将所有的childNodes和map严格对应，这里不能有回车和换行，否则就会多一个文本节点，他们的顺序就会不一样 -->
     <div id="containter"></div>
     <button onclick="localStorage['map']=JSON.stringify(map)">save</button>
     <script>
@@ -63,39 +62,73 @@
                 setTimeout(resolve,t);
             })
         }
+        class Sorted{//能保证每次take时拿到最小的
+            constructor(data,compare){
+                this.data=data.slice();//完成对数组data的浅拷贝
+                this.compare=compare||((a,b)=>a-b)
+            }
+            take(){
+                if(!this.data.length)
+                    return
+                let min=this.data[0]
+                let minIndex=0
+                for(let i=0;i<this.data.length;i++){
+                    if(this.compare(this.data[i],min)<0){
+                        min=this.data[i]
+                        minIndex=i
+                    }
+                }
+                this.data[minIndex]=this.data[this.data.length-1];
+                this.data.pop()//删除最后一个元素
+                return min
+            }
+            give(v){
+                this.data.push(v)
+            }
+        }
         //寻路：在地图上指定一个起点和终点，然后找到一条路径从起点到终点
-        async function path(map,start,end){
+        async function findPath(map,start,end){
+            let table=Object.create(map);//将map复制到table
             //队列：先进先出
             //数组+push+shift=>队列
             //数组+pop+unshift=>队列
             //数组+push/shift+pop/unshift=>栈
             //[0,0] [5,5]
             let queue=[start]//[[0,0]]
-            async function insert(x,y){
+            async function insert(x,y,pre){
                 if(x<0||x>=100||y<0||y>=100)
                     return;
-                if(map[y*100+x])//判断是否为搜索过的点1/2
+                if(table[y*100+x])
                     return;
-                await sleep(30)
-                if(x===end[0]&&y===end[1]){//判断是否走到终点
-                    containter.children[y*100+x].style.backgroundColor="green";
-                }else{
-                    containter.children[y*100+x].style.backgroundColor="red";
-                }
-                map[y*100+x]=2;//能走的点
+                containter.children[y*100+x].style.backgroundColor="red";
+                table[y*100+x]=pre;//将前一个节点写入table
                 queue.push([x,y]);//将每个点下一步能走的点都加入到queue
             }
             while(queue.length){
                 let [x,y]=queue.shift();//用于把数组的第一个元素从其中删除，并返回第一个元素的值
                 // console.log(x,y)
                 if(x===end[0]&&y===end[1]){//判断是否走到终点
-                    return true;
+                   let path=[];
+                   //从终点开始找它的pre（前一个节点）直到起点
+                   while(x!=start[0]||y!=start[1]){
+                        path.push(map[y*100+x]);
+                        [x,y]=table[y*100+x];
+                        await sleep(30);
+                        containter.children[y*100+x].style.backgroundColor="green";
+                   }
+                   return path;
                 }
-                await insert(x-1,y);
-                await insert(x,y-1);
-                await insert(x+1,y);
-                await insert(x,y+1);
+                await insert(x-1,y,[x,y]);
+                await insert(x,y-1,[x,y]);
+                await insert(x+1,y,[x,y]);
+                await insert(x,y+1,[x,y]);
+
+                await insert(x-1,y-1,[x,y]);
+                await insert(x+1,y-1,[x,y]);
+                await insert(x-1,y+1,[x,y]);
+                await insert(x+1,y+1,[x,y]);
             }
+            return null;
         }
     </script>
 </body>

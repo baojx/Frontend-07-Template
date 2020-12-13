@@ -28,20 +28,20 @@
     <script>
         let map=localStorage["map"]?JSON.parse(localStorage["map"]):Array(10000).fill(0);
         let containter=document.getElementById("containter");
-        for(let y=0;y<100;y++){
-            for(let x=0;x<100;x++){
+        for(let y=0;y<100;y++){//行
+            for(let x=0;x<100;x++){//列
                 let cell=document.createElement("div");
                 cell.classList.add("cell");
-                if(map[100*y+x]==1)//有墙
+                if(map[100*y+x]==1)//1-》有墙   0-》无墙
                     cell.style.backgroundColor="black";
-                cell.addEventListener("mousemove",()=>{
-                    if(mousedown){
-                        if(clear){
+                cell.addEventListener("mousemove",()=>{//监听鼠标移动事件
+                    if(mousedown){//表示按下鼠标
+                        if(clear){//按的是右键
                             //清除地图
                             cell.style.backgroundColor="";
                             map[100*y+x]=0;
-                        }else{
-                            cell.style.backgroundColor="black";//视觉上让地图变成墙
+                        }else{//不是右键
+                            cell.style.backgroundColor="black";//视觉上让地图变成墙（让格子变为黑色）
                             map[100*y+x]=1;//逻辑上让地图变成墙
                         }
                     }
@@ -53,10 +53,10 @@
         let clear=false;
         document.addEventListener("mousedown",e=>{//按下鼠标
             mousedown=true;
-            clear=(e.which===3);//右键
+            clear=(e.which===3);//判断按下的是否为右键，右键clear=true否则clear=false
         });
         document.addEventListener("mouseup",()=>mousedown=false);//松开鼠标
-        document.addEventListener("contextmenu",e=>e.preventDefault());//阻止鼠标右键出现菜单
+        document.addEventListener("contextmenu",e=>e.preventDefault());//阻止鼠标右键弹出菜单
     </script>
 </body>
 </html>

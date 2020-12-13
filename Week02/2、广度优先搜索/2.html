@@ -58,7 +58,7 @@
         document.addEventListener("mouseup",()=>mousedown=false);//松开鼠标
         document.addEventListener("contextmenu",e=>e.preventDefault());//阻止鼠标右键出现菜单
         //寻路：在地图上指定一个起点和终点，然后找到一条路径从起点到终点
-        function path(map,start,end){
+        function path(map,start,end){//参数：地图、起点、终点
             //队列：先进先出
             //数组+push+shift=>队列
             //数组+pop+unshift=>队列
@@ -74,7 +74,7 @@
                 queue.push([x,y]);//将每个点下一步能走的点都加入到queue
             }
             while(queue.length){
-                let [x,y]=queue.shift()//用于把数组的第一个元素从其中删除，并返回第一个元素的值
+                let [x,y]=queue.shift()//用于把数组的第一个元素从其中删除，并返回第一个元素的值/pop广度优先搜索
                 console.log(x,y)
                 if(x===end[0]&&y===end[1]){//判断是否走到终点
                     return true;
@@ -85,7 +85,7 @@
                 insert(x,y+1);
             }
         }
-        path(map,[0,0],[5,5])
+        // path(map,[0,0],[5,5])
     </script>
 </body>
 </html>
