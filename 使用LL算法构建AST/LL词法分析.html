@@ -1,0 +1,45 @@
+<script>
+    var regexp=/([0-9\.]+)|([ \t]+)|([\r\n]+)|(\*)|(\/)|(\+)|(\-)/g;//在正则表达式中()表示捕获
+    var dictionary=["Number","whitespace","LineTerminator","*","/","+","-"];
+    function* tokenize(source){
+        //匹配出来的长度和前进的长度不一样长怎么办
+        var result=null;
+        var lastIndex=0;
+        while(true){
+            //lastIndex 属性用于规定下次匹配的起始位置。
+            //注意：该属性只有设置标志 g 才能使用。
+            lastIndex=regexp.lastIndex;
+            //返回一个数组，其中存放匹配的结果。如果未找到匹配，则返回值为 null。
+            //此数组的第 0 个元素是与正则表达式相匹配的文本，
+            //第 1 个元素是与 RegExpObject 的第 1 个子表达式相匹配的文本（如果有的话），
+            //第 2 个元素是与 RegExpObject 的第 2 个子表达式相匹配的文本（如果有的话），以此类推。
+            result=regexp.exec(source);
+            // console.log(result[0].length)
+            if(!result) 
+                break;//没匹配出来
+            //用取出来的lastIndex与新生成的lastIndex作比较
+            if(regexp.lastIndex-lastIndex>result[0].length) 
+                break;//表示有我们不认识的字符或者格式
+            let token={
+                type:null,
+                value:null
+            }
+            for(var i=1;i<=dictionary.length;i++){//因为当i=0时，表示是整个匹配到的字符
+                if(result[i])
+                    token.type=dictionary[i-1];
+            }
+            token.value=result[0];
+            yield token;
+        }
+        yield {
+            type:"EOF"
+        }
+    }
+    // for(let token of tokenize("1024a + 10 * 25")){
+    //     console.log(token)
+    // }
+    for(let token of tokenize("1024 + 10 * 25")){
+        console.log(token)
+    }
+    
+</script>
