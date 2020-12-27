@@ -34,9 +34,11 @@
         }
         //处理中间
         lastIndex=i;
+        //每个*带着一个模式串
         for(let p=0;p<startCard-1;p++){
             i++;
             let subPattern="";
+            //首先找到这个*
             while(pattern[i]!=="*"){
                 subPattern+=pattern[i];
                 i++
@@ -45,7 +47,7 @@
             let reg=new RegExp(subPattern.replace(/\?/g,"[\\s\\S]"),"g");
             //正则的lastIndex决定了我们在exec的时候，从哪个字符开始
             reg.lastIndex=lastIndex;//意味着我们可以接着之前的工作去找
-            console.log(reg.exec(source));
+            // console.log(reg.exec(source));
             if(!reg.exec(source)){
                 return false;
             }
