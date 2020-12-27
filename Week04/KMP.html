@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KMP字符串模式匹配算法</title>
+</head>
+<body>
+<script>
+    function kmp(source,pattern){
+        //1、计算跳转table
+        let table=new Array(pattern.length).fill(0);
+        {
+            //查字符串有没有自重复
+            //abcdabce
+            //i 自重复串开始的位置;j  已重复的字数
+            let i=1,j=0;
+            while(i<pattern.length){
+                if(pattern[i]===pattern[j]){//有自重复
+                    ++j,++i;  
+                    table[i]=j;
+                }else{
+                    if(j>0){
+                        j=table[j];
+                    }else{
+                        ++i;
+                    }
+                }
+            }
+            console.log(table)
+        }
+        {
+            //i source串的位置;j pattern串的位置
+            let i=0,j=0;
+            while(i<source.length){
+                if(pattern[j]===source[i]){
+                    ++j,i++;
+                }else{
+                    if(j>0){
+                        j=table[j];
+                    }else{
+                        ++i;
+                    } 
+                }
+                if(j===pattern.length){
+                    return true;
+                }
+            }
+            return false;
+        }
+        //2、进行真正的匹配
+    }
+    // console.log(kmp("abc","abc"));
+    kmp("","abcdabce");
+    //a   a   b   a   a   a   c
+    //0   0   1   0   1   2   2
+    // kmp("","aabaaac");
+</script>
+</body>
+</html>

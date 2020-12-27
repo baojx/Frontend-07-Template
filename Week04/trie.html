@@ -34,7 +34,7 @@
                     maxWord=word;
                 }
                 for(let p in node){
-                    visit(node[p],word+p)
+                    visit(node[p],word+p);
                 }
             }
             visit(this.root,"");
@@ -52,7 +52,7 @@
         return s;
     }
     let trie=new Trie();
-    for(let i=0;i<100000;i++){
+    for(let i=0;i<2;i++){
         trie.insert(randomWord(4))
     }
 </script>
