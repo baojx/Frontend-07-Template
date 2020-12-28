@@ -7,6 +7,7 @@
 </head>
 <body>
 <script>
+    let callbacks=[];
     //object如果我们访问它的a属性和b属性，这个中间是写死的，我们是无法加入任何的监听的代码，他就是一个单纯的存储
     let object={
         a:1,
@@ -17,15 +18,24 @@
     //po是一个特殊的对象，它上面的所有行为都是可以被重新指定的，但他不会改变原始的object
     //实现了po对object的代理
     let po=reactive(object);
+    //可以直接去监听po上的属性，去代替事件监听的一个机制
+    effect(()=>{
+        console.log("effect:",po.a);
+    })
+    function effect(callback){
+        callbacks.push(callback);
+    }
     function reactive(object){
        return new Proxy(object,{
         set(obj,prop,val){//它跟getter和setter的区别就是即使我们设置一个没有的属性，它也会默认触发set
             obj[prop]=val;
-            console.log(obj,prop,val);
+            for(let callback of callbacks){
+                callback();
+            }
             return obj[prop];
         },
         get(obj,prop){
-            console.log(obj,prop);
+            console.log("get:",obj,prop);
             return obj[prop];
         }
     })
