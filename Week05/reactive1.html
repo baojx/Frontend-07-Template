@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模仿reactive实现原理（一）</title>
+</head>
+<body>
+<script>
+    //object如果我们访问它的a属性和b属性，这个中间是写死的，我们是无法加入任何的监听的代码，他就是一个单纯的存储
+    let object={
+        a:1,
+        b:2
+    }
+    //如果我们有一个对象，我们即想让它设置起来，又想让它能够被监听，那么我们就可以通过proxy把这个对象做一层包裹
+    //第二个参数是config:包含了所有的对po所做的钩子
+    //po是一个特殊的对象，它上面的所有行为都是可以被重新指定的，但他不会改变原始的object
+    let po=reactive(object);
+    function reactive(object){
+       return new Proxy(object,{
+        set(obj,prop,val){//它跟getter和setter的区别就是即使我们设置一个没有的属性，它也会默认触发set
+            obj[prop]=val;
+            console.log(obj,prop,val);
+            return obj[prop];
+        },
+        get(obj,prop){
+            console.log(obj,prop);
+            return obj[prop];
+        }
+    })
+    }
+</script>
+</body>
+</html>
