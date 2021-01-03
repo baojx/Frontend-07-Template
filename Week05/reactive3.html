@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>模仿reactive实现原理（一）</title>
+    <title>模仿reactive实现原理（三）</title>
 </head>
 <body>
 <script>
@@ -16,6 +16,7 @@
     let po=reactive(object);
     effect(()=>{
         console.log("effect->callback:",po.a);
+        console.log("effect->usedActivies:",usedActivies);
     })
     function effect(callback){
         usedActivies=[];
@@ -29,10 +30,12 @@
             }
             callbacks.get(reactivty[0]).get(reactivty[1]).push(callback);
         }
+        console.log("effect：",callbacks);
     }
     function reactive(object){
        return new Proxy(object,{
         set(obj,prop,val){
+            console.log("set");
             obj[prop]=val;
             if(callbacks.get(obj)){
                 if(callbacks.get(obj).get(prop)){
@@ -44,6 +47,7 @@
             return obj[prop];
         },
         get(obj,prop){
+            console.log("get");
             usedActivies.push([obj,prop]);
             return obj[prop];
         }

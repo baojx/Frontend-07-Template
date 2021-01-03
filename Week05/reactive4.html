@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>优化reactive</title>
+</head>
+<body>
+<script>
+    let callbacks=new Map();
+    let usedReactivies=[];
+    let reactivies=new Map();
+    let object={
+        a:{
+            b:3
+        },
+        b:2
+    }
+    let po=reactive(object);
+    effect(()=>{
+        console.log("callback:",po.a.b);
+    })
+    function effect(callback){
+        usedReactivies=[];
+        callback();
+        for(let reactivty of usedReactivies){
+            if(!callbacks.has(reactivty[0])){//判断是否有指定对象的元素
+                callbacks.set(reactivty[0],new Map());
+            }
+            if(!callbacks.get(reactivty[0]).has(reactivty[1])){//判断是否有指定属性的元素
+                callbacks.get(reactivty[0]).set(reactivty[1],[]);
+            }
+            callbacks.get(reactivty[0]).get(reactivty[1]).push(callback);
+        }
+        console.log("effect：",callbacks);
+    }
+    function reactive(object){
+        if(reactivies.has(object)){
+            return reactivies.get(object);
+        }
+        let proxy = new Proxy(object,{
+            set(obj,prop,val){
+                console.log("set");
+                obj[prop]=val;
+                if(callbacks.get(obj)){
+                    if(callbacks.get(obj).get(prop)){
+                        for(let callback of callbacks.get(obj).get(prop)){
+                            callback();
+                        }
+                    }
+                }
+                return obj[prop];
+            },
+            get(obj,prop){
+                console.log("get");
+                usedReactivies.push([obj,prop]);
+                if(typeof obj[prop]==="object"){
+                    return reactive(obj[prop]);
+                }
+                return obj[prop];
+            }
+        })
+        reactivies.set(object,proxy);
+        return proxy;
+    }
+</script>
+</body>
+</html>
